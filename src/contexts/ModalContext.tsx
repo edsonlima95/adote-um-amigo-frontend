@@ -1,4 +1,6 @@
 import { createContext, useState } from "react";
+import { useForm } from "react-hook-form";
+import { api } from "../services/api";
 
 
 type ModalProviderProps = {
@@ -8,8 +10,8 @@ type ModalProviderProps = {
 type ModalContextProps = {
 
     isModalOpen: boolean,
-    handleCloseModal: () => void
-    handleOpenModal: () => void
+    closeModal: () => void
+    openModal: (id?: number) => void
 
 }
 
@@ -21,18 +23,15 @@ export function ModalProvider({ children }: ModalProviderProps) {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-
-
-    function handleOpenModal() {
+    async function openModal() {
         setIsModalOpen(true)
     }
-    function handleCloseModal() {
-        
+    function closeModal() {
         setIsModalOpen(false)
     }
 
     return (
-        <ModalContext.Provider value={{ isModalOpen, handleCloseModal, handleOpenModal }}>
+        <ModalContext.Provider value={{ isModalOpen, closeModal, openModal }}>
             {children}
         </ModalContext.Provider>
     )

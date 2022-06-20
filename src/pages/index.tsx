@@ -11,6 +11,7 @@ import { toast } from "react-toastify"
 import dayjs from 'dayjs'
 
 type FormDataProps = {
+  id?: number,
   name: string,
   description: string,
   email: string,
@@ -32,8 +33,9 @@ type PetProps = {
 
 function Home() {
 
-  const { isModalOpen, handleCloseModal } = useContext(ModalContext)
+  const { isModalOpen, closeModal, openModal } = useContext(ModalContext)
   const [pets, setPets] = useState<PetProps[]>()
+  const [pet, setPet] = useState<FormDataProps>()
 
   //Validações dos campos
   const schema = yup.object({
@@ -51,9 +53,7 @@ function Home() {
 
 
   useEffect(() => {
-
     setValue('user_id', 1)
-
     getPets()
 
   }, [])
@@ -64,6 +64,7 @@ function Home() {
 
     const dataForm = new FormData()
 
+    dataForm.append('id', data.id);
     dataForm.append('name', data.name);
     dataForm.append('cover', data.cover[0]);
     dataForm.append('description', data.description);
@@ -72,10 +73,13 @@ function Home() {
     dataForm.append('city', data.city);
     dataForm.append('state', data.state);
     dataForm.append('category_id', data.category_id);
-    dataForm.append('user_id', String(data.user_id));
+    dataForm.append('user_id', data.user_id);
 
-
-    create(dataForm)
+    if (data.id) {
+      update(dataForm, data.id)
+    } else {
+      create(dataForm)
+    }
 
   }
 
@@ -86,6 +90,7 @@ function Home() {
     setPets(response.data.pets)
 
   }
+
 
   async function create(data: FormData) {
 
@@ -121,8 +126,64 @@ function Home() {
 
   }
 
+  async function update(data: FormData, id: number) {
+
+    try {
+
+
+      const response = await api.put(`/pets/${id}`, data)
+
+      toast.success(response.data.message)
+      setPets(response.data.pets)
+      resetFields()
+      handleCloseModal()
+    } catch (err: any) {
+
+      const { errors } = err.response.data
+
+      if (err.response.data.message) {
+        setError('cover', { message: err.response.data.message })
+      }
+      if (errors) {
+
+        for (const error of errors) {
+
+          if (error.type === 'extname') {
+            toast.error('Formato inválido, selecione um formato válido: PNG JPG JPEG')
+          } else if (error.type === 'size') {
+            toast.error('Arquivo maior que permitido, envie um arquivo menor que 1MB')
+          }
+        }
+      }
+
+    }
+
+  }
+
+  async function handleOpenModal(id?: number) {
+
+    if (id != undefined) {
+      const response = await api.get(`/pets/${id}/edit`)
+
+      setValue('id', id)
+      setValue('name', response.data.pet.name)
+      setValue('description', response.data.pet.description)
+      setValue('email', response.data.pet.email)
+      setValue('contact', response.data.pet.contact)
+      setValue('city', response.data.pet.city)
+      setValue('state', response.data.pet.state)
+      setValue('category_id', response.data.pet.category_id)
+      setValue('user_id', response.data.pet.user_id)
+
+    }
+
+    openModal()
+
+  }
+
   function resetFields() {
     reset({
+      id: undefined,
       name: '',
       description: '',
       cover: '',
@@ -134,7 +195,11 @@ function Home() {
     })
   }
 
-
+  function handleCloseModal() {
+    closeModal()
+    resetFields()
+  }
+  
   return (
     <>
       <ModalPet modalIsOpen={isModalOpen} handleCloseModal={handleCloseModal}>
@@ -200,7 +265,7 @@ function Home() {
         <div className="grid grid-cols-3 gap-5">
           {pets?.map(pet => (
 
-            <div key={pet.id} className="shadow-md p-5 flex rounded-sm">
+            <div key={pet.id} className="shadow-md p-5 flex rounded-sm" onClick={() => handleOpenModal(pet.id)}>
               <img src={`${process.env.NEXT_PUBLIC_API_URL}/pet-image/${pet.cover}`} alt="" className="w-[100px] h-[100px] rounded-full" />
               <div className="ml-4">
                 <p className="text-[#613387] text-xl font-bold">{pet.name}</p>
@@ -208,6 +273,7 @@ function Home() {
                 <small className="text-gray-400 font-bold">{dayjs(pet.created_at).format('DD/MM/YYYY')}</small>
               </div>
             </div>
+
           ))}
 
 
