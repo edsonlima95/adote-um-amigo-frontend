@@ -17,12 +17,9 @@ function Layout({ children }: LayoutProps) {
                 <List size={32} color="white"/>
             </header>
 
-            <main className="h-screen w-10/12 ml-auto bg-white pt-[80px] p-5">
+            <main className="min-h-screen w-10/12 ml-auto bg-gray-50 pt-[80px] p-5">
                 {children}
             </main>
-
-           
-
         </>
     )
 

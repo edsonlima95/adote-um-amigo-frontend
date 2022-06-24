@@ -26,7 +26,10 @@ body {
 .modal-content {
   outline: none;
   width: 100%;
-  max-width: 630px;
+  max-width: 600px;
+  min-height: 500px;
+  height: 560px;
+  overflow-y: auto;
   background-color: #fff;
   border-radius: 0.5rem;
   padding: 1.5rem;
