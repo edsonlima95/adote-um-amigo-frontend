@@ -12,6 +12,8 @@ import dayjs from 'dayjs'
 
 type FormDataProps = {
   id?: number,
+  user_id: number,
+  category_id: number,
   name: string,
   description: string,
   email: string,
@@ -19,8 +21,6 @@ type FormDataProps = {
   city: string,
   state: string,
   cover: string,
-  category_id: string,
-  user_id: number,
 }
 
 type PetProps = {
@@ -65,6 +65,8 @@ function Home() {
     const dataForm = new FormData()
 
     dataForm.append('id', data.id);
+    dataForm.append('category_id', data.category_id);
+    dataForm.append('user_id', data.user_id);
     dataForm.append('name', data.name);
     dataForm.append('cover', data.cover[0]);
     dataForm.append('description', data.description);
@@ -72,8 +74,8 @@ function Home() {
     dataForm.append('contact', data.contact);
     dataForm.append('city', data.city);
     dataForm.append('state', data.state);
-    dataForm.append('category_id', data.category_id);
-    dataForm.append('user_id', data.user_id);
+
+  
 
     if (data.id) {
       update(dataForm, data.id)
@@ -90,7 +92,6 @@ function Home() {
     setPets(response.data.pets)
 
   }
-
 
   async function create(data: FormData) {
 
@@ -191,7 +192,7 @@ function Home() {
       contact: '',
       city: '',
       state: '',
-      category_id: '',
+      category_id: undefined,
     })
   }
 
