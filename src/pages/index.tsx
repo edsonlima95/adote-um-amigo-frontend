@@ -4,6 +4,9 @@ import { api } from "../services/api"
 import { toast } from "react-toastify"
 import dayjs from 'dayjs'
 import { NotePencil, Trash } from "phosphor-react"
+import { Breadcrumb } from "../components/Breadcrumb"
+import Link from "next/link"
+import { Alert } from "../components/Alert"
 
 
 
@@ -20,7 +23,7 @@ function Home() {
   const [pets, setPets] = useState<PetProps[]>()
 
   useEffect(() => {
-    
+
     getPets()
 
   }, [])
@@ -51,8 +54,11 @@ function Home() {
 
   return (
     <>
-    
+
       <Layout>
+        
+        <Breadcrumb title="Cadastrar" currentTitle="Pets" link="/pet" />
+        
         {pets && pets?.length > 0 ? (
           <div className="shadow rounded-lg overflow-hidden">
             <table className="w-full text-sm text-left text-gray-500 overflow-hidden">
@@ -92,7 +98,7 @@ function Home() {
                       {dayjs(pet.created_at).format('DD/MM/YYYY')}
                     </td>
                     <td className="flex gap-4 px-6 py-4">
-                      <button className="font-medium bg-blue-500 rounded-full text-white p-2" ><NotePencil size={24} /></button>
+                       <Link href={`/pet/${pet.id}`}><a className="font-medium bg-blue-500 rounded-full text-white p-2"><NotePencil size={24} /></a></Link>
                       <button className="font-medium bg-red-500 rounded-full text-white p-2" onClick={() => destroy(pet.id as number)}><Trash size={24} /></button>
                     </td>
                   </tr>
@@ -101,9 +107,7 @@ function Home() {
             </table>
           </div>
         ) : (
-          <div className="p-4 mb-4 text-sm text-center text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
-            <span className="font-medium">Importante!</span> Você ainda não tem nenhum bixinho cadastrado
-          </div>
+         <Alert title="Importante" message="Você ainda não tem nenhum bixinho cadastrado"/>
         )}
 
       </Layout>

@@ -5,8 +5,10 @@ import { Controller, useForm } from "react-hook-form";
 import Layout from "../Layout";
 import { api } from "../../services/api";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CloudArrowUp } from "phosphor-react";
+import {  useRouter } from 'next/router'
+import { Breadcrumb } from "../../components/Breadcrumb";
 
 type FormDataProps = {
     id?: number,
@@ -23,6 +25,11 @@ type FormDataProps = {
 
 function Create() {
 
+    const router = useRouter()
+    const arr = router.query.params
+
+    const petId = arr?.[0]
+
     const [showImage, setShowImage] = useState("")
     const [Image, setImage] = useState()
 
@@ -36,9 +43,34 @@ function Create() {
         state: yup.string().required("Estado é obrigatório")
     })
 
-    const { register, handleSubmit, setError, reset, control, formState: { errors } } = useForm<FormDataProps>({
+    const { register, handleSubmit, setError, setValue, reset, control, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(schema)
     })
+
+
+    useEffect(() => {
+        
+        if(petId){
+
+             api.get(`/pets/${petId}/edit`).then(response => {
+
+                const {pet} = response.data
+
+                setValue('id',pet.id)
+                setValue('name',pet.name)
+                setValue('description',pet.description)
+                setValue('email',pet.email)
+                setValue('contact',pet.contact)
+                setValue('city',pet.city)
+                setValue('state',pet.state)
+                setValue('category_id',pet.category_id)
+                setValue('user_id',pet.user_id)
+
+             }).catch((error) => {})
+
+        }
+
+    },[])
 
 
     async function onSubmit(data: FormDataProps) {
@@ -105,6 +137,7 @@ function Create() {
 
             toast.success(response.data.message)
             resetFields()
+            router.push('/')
 
         } catch (err: any) {
 
@@ -129,7 +162,7 @@ function Create() {
 
     }
 
-    function handleChange(event) {
+    function handleChange(event:any) {
 
         setImage(event.target.files[0])
         if(event.target.files[0]){
@@ -152,6 +185,7 @@ function Create() {
     }
     return (
         <Layout>
+            <Breadcrumb title="Listar" currentTitle="Pets" link="/"/>
             <div className="shadow bg-white p-5 rounded-sm">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex gap-3">
@@ -175,7 +209,7 @@ function Create() {
                                 control={control}
                                 name="cover"
                                 render={({ field }) => (
-                                    <input type="file" {...field} onChange={handleChange} id="cover" className="border rounded h-12 px-3 focus:outline-none hidden" />
+                                    <input type="file" {...field}  onChange={handleChange} id="cover" className="border rounded h-12 px-3 focus:outline-none hidden" />
                                 )}
                             />
                             <ShowErrorMessage error={errors.cover?.message} />
