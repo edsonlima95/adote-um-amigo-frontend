@@ -1,10 +1,12 @@
 import ShowErrorMessage from "../../components/Message"
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Layout from "../Layout";
 import { api } from "../../services/api";
 import { toast } from "react-toastify";
+import { useState } from "react";
+import { CloudArrowUp } from "phosphor-react";
 
 type FormDataProps = {
     id?: number,
@@ -21,6 +23,8 @@ type FormDataProps = {
 
 function Create() {
 
+    const [showImage, setShowImage] = useState("")
+    const [Image, setImage] = useState()
 
     //Validações dos campos
     const schema = yup.object({
@@ -32,20 +36,20 @@ function Create() {
         state: yup.string().required("Estado é obrigatório")
     })
 
-    const { register, handleSubmit, setError, reset, formState: { errors } } = useForm<FormDataProps>({
+    const { register, handleSubmit, setError, reset, control, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(schema)
     })
 
 
     async function onSubmit(data: FormDataProps) {
 
-        
+
         const dataForm = new FormData()
 
         dataForm.append('category_id', data.category_id);
-        dataForm.append('user_id', 1);
+        dataForm.append('user_id', 2);
         dataForm.append('name', data.name);
-        dataForm.append('cover', data.cover[0]);
+        dataForm.append('cover', Image);
         dataForm.append('description', data.description);
         dataForm.append('email', data.email);
         dataForm.append('contact', data.contact);
@@ -69,7 +73,7 @@ function Create() {
 
             toast.success(response.data.message)
             resetFields()
-        
+
         } catch (err: any) {
 
             const { errors } = err.response.data
@@ -101,7 +105,7 @@ function Create() {
 
             toast.success(response.data.message)
             resetFields()
-            
+
         } catch (err: any) {
 
             const { errors } = err.response.data
@@ -123,6 +127,14 @@ function Create() {
 
         }
 
+    }
+
+    function handleChange(event) {
+
+        setImage(event.target.files[0])
+        if(event.target.files[0]){
+            setShowImage(URL.createObjectURL(event.target.files[0]))
+        }
     }
 
     function resetFields() {
@@ -149,9 +161,23 @@ function Create() {
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('name')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.name?.message} />
                         </div>
-                        <div className="flex flex-col w-5/12">
-                            <label htmlFor="name" className="text-gray-700 font-bold mb-3">Imagem</label>
-                            <input type="file" className="border rounded h-12 px-3 focus:outline-none" {...register('cover')} placeholder="Digite o nome" />
+
+                        <div className="flex flex-col w-5/12 ">
+                            <div className="flex items-center justify-center">
+
+                            <label htmlFor="cover" className="font-bold mb-3 bg-[#613387] p-5 w-24 rounded text-white flex flex-col items-center">
+                                <CloudArrowUp size={32} />
+                                Imagem
+                            </label>
+                            {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full ml-10" />) : (<></>)}
+                            </div>
+                            <Controller
+                                control={control}
+                                name="cover"
+                                render={({ field }) => (
+                                    <input type="file" {...field} onChange={handleChange} id="cover" className="border rounded h-12 px-3 focus:outline-none hidden" />
+                                )}
+                            />
                             <ShowErrorMessage error={errors.cover?.message} />
                         </div>
                     </div>

@@ -28,7 +28,7 @@ function Home() {
 
   async function getPets() {
 
-    const response = await api.get(`/pets?user_id=${1}`)
+    const response = await api.get(`/pets?user_id=${2}`)
 
     setPets(response.data.pets)
 
