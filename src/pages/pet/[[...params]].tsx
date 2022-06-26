@@ -29,7 +29,7 @@ function Create() {
     const arr = router.query.params
 
     const petId = arr?.[0]
-
+    
     const [showImage, setShowImage] = useState("")
     const [Image, setImage] = useState()
 
