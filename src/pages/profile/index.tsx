@@ -6,6 +6,8 @@ import { api } from "../../services/api";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Layout from "../Layout";
+import { Breadcrumb } from "../../components/Breadcrumb";
+import { getCookie } from "cookies-next";
 
 type FormDataProps = {
     id: number,
@@ -19,10 +21,10 @@ function Profile() {
 
     //Mostra o preview da imagem que será enviada
     const [showImage, setShowImage] = useState("")
-   
+
     //Recebe a imagem para ser enviada do formulario
     const [Image, setImage] = useState()
-   
+
     //Recebe a imagem do usuario logado caso exista
     const [cover, setCover] = useState<string | undefined>()
 
@@ -39,23 +41,29 @@ function Profile() {
 
     useEffect(() => {
 
+         profile()
 
-        api.get(`/profile/${2}`).then(response => {
+    }, [])
 
+    async function profile() {
+        try {
+            const userPet = JSON.parse(getCookie('pet.user') as string)
+
+            const response = await api.get(`/profile/${userPet.id}`)
+           
             const { user } = response.data
 
             setValue('id', user.id)
             setValue('name', user.name)
             setValue('email', user.email)
             setValue('password', user.password)
-            
-            setCover( user.cover)
-            
-        }).catch((error) => { })
 
+            setCover(user.cover)
 
+        } catch (error) {
 
-    }, [])
+        }
+    }
 
     async function onSubmit(data: FormDataProps) {
 
@@ -66,8 +74,8 @@ function Profile() {
         dataForm.append('name', data.name);
         dataForm.append('cover', Image);
         dataForm.append('email', data.email);
-        
-        if(data.password){
+
+        if (data.password) {
             dataForm.append('password', data.password);
         }
 
@@ -117,7 +125,7 @@ function Profile() {
 
     return (
         <Layout>
-
+            <Breadcrumb title="Atualizar" currentTitle="Perfil" link="/profile" />
             <div className="shadow bg-white p-5 rounded-sm">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex gap-3">
@@ -130,13 +138,13 @@ function Profile() {
 
                         <div className="flex flex-col w-5/12 ">
                             <div className="flex flex-col  items-center justify-center">
-                            
+
                                 {cover && !showImage ? (<img src={`${process.env.NEXT_PUBLIC_API_URL}/profile/cover/${cover}`} className="w-[90px] h-[90px] rounded-full" alt="" />) : (<></>)}
-                                
+
                                 {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full" />)
                                     : (!cover ? <img src="/images/user.jpg" alt="" className="w-[90px] h-[90px] rounded-full" /> : (<></>))}
                                 <label htmlFor="cover" className="mt-5 text-[#613387] font-semibold">Alterar foto</label>
-                            
+
                             </div>
                             <Controller
                                 control={control}

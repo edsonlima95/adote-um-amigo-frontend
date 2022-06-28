@@ -7,6 +7,7 @@ import { NotePencil, Trash } from "phosphor-react"
 import { Breadcrumb } from "../components/Breadcrumb"
 import Link from "next/link"
 import { Alert } from "../components/Alert"
+import { getCookie } from "cookies-next"
 
 
 
@@ -30,10 +31,16 @@ function Home() {
 
 
   async function getPets() {
+    
+    try {
 
-    const response = await api.get(`/pets?user_id=${2}`)
+      const user = JSON.parse(getCookie('pet.user') as string)
+      
+      const response = await api.get(`/pets?user_id=${user.id}`)
+      setPets(response.data.pets)
+    
+    } catch (error) {}
 
-    setPets(response.data.pets)
 
   }
 

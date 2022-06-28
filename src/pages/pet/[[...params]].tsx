@@ -7,8 +7,9 @@ import { api } from "../../services/api";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { CloudArrowUp } from "phosphor-react";
-import {  useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { Breadcrumb } from "../../components/Breadcrumb";
+import { getCookie } from "cookies-next";
 
 type FormDataProps = {
     id?: number,
@@ -23,15 +24,21 @@ type FormDataProps = {
     user_id: number,
 }
 
+type Category = {
+    id: number,
+    title: string,
+}
+
 function Create() {
 
     const router = useRouter()
     const arr = router.query.params
 
     const petId = arr?.[0]
-    
+
     const [showImage, setShowImage] = useState("")
     const [Image, setImage] = useState()
+    const [categories, setCategories] = useState<Category[]>()
 
     //Validações dos campos
     const schema = yup.object({
@@ -49,28 +56,45 @@ function Create() {
 
 
     useEffect(() => {
-        
-        if(petId){
 
-             api.get(`/pets/${petId}/edit`).then(response => {
+        try {
+            const user = JSON.parse(getCookie('pet.user') as string)
 
-                const {pet} = response.data
+            setValue('user_id', user.id)
 
-                setValue('id',pet.id)
-                setValue('name',pet.name)
-                setValue('description',pet.description)
-                setValue('email',pet.email)
-                setValue('contact',pet.contact)
-                setValue('city',pet.city)
-                setValue('state',pet.state)
-                setValue('category_id',pet.category_id)
-                setValue('user_id',pet.user_id)
+            api.get(`/categories?user_id=${user.id}`).then(response => {
 
-             }).catch((error) => {})
+                setCategories(response.data.categories)
+
+            }).catch(err => {
+
+            })
+
+        } catch (error) {
 
         }
 
-    },[])
+        if (petId) {
+
+            api.get(`/pets/${petId}/edit`).then(response => {
+
+                const { pet } = response.data
+
+                setValue('id', pet.id)
+                setValue('name', pet.name)
+                setValue('description', pet.description)
+                setValue('email', pet.email)
+                setValue('contact', pet.contact)
+                setValue('city', pet.city)
+                setValue('state', pet.state)
+                setValue('category_id', pet.category_id)
+                setValue('user_id', pet.user_id)
+
+            }).catch((error) => { })
+
+        }
+
+    }, [])
 
 
     async function onSubmit(data: FormDataProps) {
@@ -79,7 +103,7 @@ function Create() {
         const dataForm = new FormData()
 
         dataForm.append('category_id', data.category_id);
-        dataForm.append('user_id', 2);
+        dataForm.append('user_id', data.user_id);
         dataForm.append('name', data.name);
         dataForm.append('cover', Image);
         dataForm.append('description', data.description);
@@ -162,10 +186,10 @@ function Create() {
 
     }
 
-    function handleChange(event:any) {
+    function handleChange(event: any) {
 
         setImage(event.target.files[0])
-        if(event.target.files[0]){
+        if (event.target.files[0]) {
             setShowImage(URL.createObjectURL(event.target.files[0]))
         }
     }
@@ -185,7 +209,7 @@ function Create() {
     }
     return (
         <Layout>
-            <Breadcrumb title="Listar" currentTitle="Pets" link="/"/>
+            <Breadcrumb title="Listar" currentTitle="Pets" link="/" />
             <div className="shadow bg-white p-5 rounded-sm">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="flex gap-3">
@@ -199,17 +223,17 @@ function Create() {
                         <div className="flex flex-col w-5/12 ">
                             <div className="flex items-center justify-center">
 
-                            <label htmlFor="cover" className="font-bold mb-3 bg-[#613387] p-5 w-24 rounded text-white flex flex-col items-center">
-                                <CloudArrowUp size={32} />
-                                Imagem
-                            </label>
-                            {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full ml-10" />) : (<></>)}
+                                <label htmlFor="cover" className="font-bold mb-3 bg-[#613387] p-5 w-24 rounded text-white flex flex-col items-center">
+                                    <CloudArrowUp size={32} />
+                                    Imagem
+                                </label>
+                                {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full ml-10" />) : (<></>)}
                             </div>
                             <Controller
                                 control={control}
                                 name="cover"
                                 render={({ field }) => (
-                                    <input type="file" {...field}  onChange={handleChange} id="cover" className="border rounded h-12 px-3 focus:outline-none hidden" />
+                                    <input type="file" {...field} onChange={handleChange} id="cover" className="border rounded h-12 px-3 focus:outline-none hidden" />
                                 )}
                             />
                             <ShowErrorMessage error={errors.cover?.message} />
@@ -246,10 +270,12 @@ function Create() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col">
+                    <div className="flex flex-col w-6/12">
                         <label htmlFor="name" className="text-gray-700 font-bold my-3">Categoria</label>
                         <select {...register('category_id')} className="border rounded h-12 px-3 focus:outline-none" >
-                            <option value={1}>1</option>
+                            {categories?.map((category) => (
+                                <option value={category.id}>{category.title}</option>
+                            ))}
                         </select>
                         <ShowErrorMessage error={errors.category_id?.message} />
                     </div>

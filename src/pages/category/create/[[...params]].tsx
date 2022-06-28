@@ -8,6 +8,7 @@ import Layout from "../../Layout"
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Breadcrumb } from "../../../components/Breadcrumb"
+import { getCookie } from "cookies-next"
 
 type FormDataProps = {
     id?: number,
@@ -37,6 +38,12 @@ function Category() {
 
     useEffect(() => {
 
+        try {
+            const user = JSON.parse(getCookie('pet.user') as string)
+            setValue('user_id', user.id)
+
+        } catch (error) {}
+
         if (categoryId) {
             
             api.get(`/categories/${categoryId}/edit`).then(response => {
@@ -64,7 +71,7 @@ function Category() {
 
         dataForm.append('title', data.title);
         dataForm.append('description', data.description);
-        dataForm.append('user_id', 2);
+        dataForm.append('user_id', data.user_id);
 
         if (data.id) {
             dataForm.append('id', data.id);

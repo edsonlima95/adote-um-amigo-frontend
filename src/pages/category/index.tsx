@@ -1,3 +1,4 @@
+import { getCookie } from "cookies-next"
 import Link from "next/link"
 import { NotePencil, Trash } from "phosphor-react"
 import { useEffect, useState } from "react"
@@ -27,7 +28,9 @@ function CategoryList() {
     async function getCategories() {
 
         try {
-            const response = await api.get(`/categories?user_id=${2}`)
+            const user = JSON.parse(getCookie('pet.user') as string)
+
+            const response = await api.get(`/categories?user_id=${user.id}`)
 
             setCategories(response.data.categories)
             
