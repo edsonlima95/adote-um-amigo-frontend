@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import { Breadcrumb } from "../../components/Breadcrumb";
 import { getCookie } from "cookies-next";
 
+
 type FormDataProps = {
     id?: number,
     name: string,
@@ -62,7 +63,7 @@ function Create() {
 
             setValue('user_id', user.id)
 
-            api.get(`/categories?user_id=${user.id}`).then(response => {
+            api.get(`/categories`).then(response => {
 
                 setCategories(response.data.categories)
 
@@ -274,7 +275,7 @@ function Create() {
                         <label htmlFor="name" className="text-gray-700 font-bold my-3">Categoria</label>
                         <select {...register('category_id')} className="border rounded h-12 px-3 focus:outline-none" >
                             {categories?.map((category) => (
-                                <option value={category.id}>{category.title}</option>
+                                <option value={category.id}>{category.title.toUpperCase()}</option>
                             ))}
                         </select>
                         <ShowErrorMessage error={errors.category_id?.message} />
