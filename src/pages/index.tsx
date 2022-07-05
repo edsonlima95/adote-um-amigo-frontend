@@ -8,6 +8,7 @@ import { Breadcrumb } from "../components/Breadcrumb"
 import Link from "next/link"
 import { Alert } from "../components/Alert"
 import { getCookie } from "cookies-next"
+import { useStorage } from "../hooks/useStorage"
 
 
 
@@ -18,6 +19,8 @@ type PetProps = {
   description: string,
   created_at: string,
 }
+
+
 
 function Home() {
 
@@ -67,7 +70,7 @@ function Home() {
         <Breadcrumb title="Cadastrar" currentTitle="Pets" link="/pet" />
         
         {pets && pets?.length > 0 ? (
-          <div className="shadow rounded-lg overflow-hidden">
+          <div className="shadow rounded-lg overflow-hidden overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-500 overflow-hidden">
               <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr>

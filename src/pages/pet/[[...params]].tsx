@@ -51,29 +51,26 @@ function Create() {
         state: yup.string().required("Estado é obrigatório")
     })
 
-    const { register, handleSubmit, setError, setValue, reset, control, formState: { errors } } = useForm<FormDataProps>({
+    const { register, handleSubmit, getValues, setError, setValue, reset, control, formState: { errors } } = useForm<FormDataProps>({
         resolver: yupResolver(schema)
     })
 
+    try {
+        const user = JSON.parse(getCookie('pet.user') as string)
+        setValue('user_id', user.id)
+    } catch (error) {
+
+    }
 
     useEffect(() => {
 
-        try {
-            const user = JSON.parse(getCookie('pet.user') as string)
+        api.get(`/categories`).then(response => {
 
-            setValue('user_id', user.id)
+            setCategories(response.data.categories)
 
-            api.get(`/categories`).then(response => {
+        }).catch(err => {
 
-                setCategories(response.data.categories)
-
-            }).catch(err => {
-
-            })
-
-        } catch (error) {
-
-        }
+        })
 
         if (petId) {
 
@@ -95,16 +92,20 @@ function Create() {
 
         }
 
-    }, [])
+        if (!petId) {
+            resetFields()
+        }
+
+    }, [petId])
 
 
     async function onSubmit(data: FormDataProps) {
-
+        const user = JSON.parse(getCookie('pet.user') as string)
 
         const dataForm = new FormData()
 
         dataForm.append('category_id', data.category_id);
-        dataForm.append('user_id', data.user_id);
+        dataForm.append('user_id', user.id);
         dataForm.append('name', data.name);
         dataForm.append('cover', Image);
         dataForm.append('description', data.description);
@@ -113,6 +114,7 @@ function Create() {
         dataForm.append('city', data.city);
         dataForm.append('state', data.state);
 
+    
         if (data.id) {
             dataForm.append('id', data.id);
             update(dataForm, data.id)
@@ -195,6 +197,7 @@ function Create() {
         }
     }
 
+
     function resetFields() {
         reset({
             id: undefined,
@@ -213,15 +216,15 @@ function Create() {
             <Breadcrumb title="Listar" currentTitle="Pets" link="/" />
             <div className="shadow bg-white p-5 rounded-sm">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 flex-col-reverse lg:flex-row">
 
-                        <div className="flex flex-col w-7/12">
+                        <div className="flex flex-col lg:w-7/12">
                             <label htmlFor="name" className="text-gray-700 font-bold mb-3">Nome</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('name')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.name?.message} />
                         </div>
 
-                        <div className="flex flex-col w-5/12 ">
+                        <div className="flex flex-col lg:w-5/12 ">
                             <div className="flex items-center justify-center">
 
                                 <label htmlFor="cover" className="font-bold mb-3 bg-[#613387] p-5 w-24 rounded text-white flex flex-col items-center">
@@ -240,48 +243,49 @@ function Create() {
                             <ShowErrorMessage error={errors.cover?.message} />
                         </div>
                     </div>
+
                     <div className="flex flex-col">
                         <label htmlFor="name" className="text-gray-700 font-bold my-3">Descrição</label>
                         <textarea className="border rounded h-24 px-3 focus:outline-none" {...register('description')} placeholder="Digite o nome"></textarea>
                         <ShowErrorMessage error={errors.description?.message} />
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 flex-col lg:flex-row">
 
-                        <div className="flex flex-col w-7/12">
+                        <div className="flex flex-col lg:w-7/12">
                             <label htmlFor="name" className="text-gray-700 font-bold my-3">E-mail</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('email')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.email?.message} />
                         </div>
-                        <div className="flex flex-col w-5/12">
+                        <div className="flex flex-col lg:w-5/12">
                             <label htmlFor="name" className="text-gray-700 font-bold my-3">Contato</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('contact')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.contact?.message} />
                         </div>
                     </div>
-                    <div className="flex gap-3">
-                        <div className="flex flex-col w-6/12">
+                    <div className="flex gap-3 flex-col lg:flex-row">
+                        <div className="flex flex-col lg:w-6/12">
                             <label htmlFor="name" className="text-gray-700 font-bold my-3">Cidade</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('city')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.city?.message} />
                         </div>
-                        <div className="flex flex-col w-6/12">
+                        <div className="flex flex-col lg:w-6/12">
                             <label htmlFor="name" className="text-gray-700 font-bold my-3">Estado</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('state')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.state?.message} />
                         </div>
                     </div>
 
-                    <div className="flex flex-col w-6/12">
+                    <div className="flex flex-col lg:w-6/12">
                         <label htmlFor="name" className="text-gray-700 font-bold my-3">Categoria</label>
                         <select {...register('category_id')} className="border rounded h-12 px-3 focus:outline-none" >
                             {categories?.map((category) => (
-                                <option value={category.id}>{category.title.toUpperCase()}</option>
+                                <option key={category.id} value={category.id}>{category.title.toUpperCase()}</option>
                             ))}
                         </select>
                         <ShowErrorMessage error={errors.category_id?.message} />
                     </div>
                     <div className="flex justify-center">
-                        <button type="submit" className="text-white text-2xl bg-[#613387] font-bold h-16 rounded-lg px-16 justify-center items-center mt-8">Cadastrar</button>
+                        <button type="submit" className="text-white text-2xl bg-[#613387] font-bold h-16 rounded-lg px-16 justify-center items-center mt-8 w-full lg:w-min">{petId ? 'Atualizar' : 'Cadastrar'}</button>
                     </div>
 
                 </form>

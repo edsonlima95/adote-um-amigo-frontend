@@ -128,15 +128,15 @@ function Profile() {
             <Breadcrumb title="Atualizar" currentTitle="Perfil" link="/profile" />
             <div className="shadow bg-white p-5 rounded-sm">
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 flex-col-reverse lg:flex-row">
 
-                        <div className="flex flex-col w-7/12">
+                        <div className="flex flex-col lg:w-7/12">
                             <label htmlFor="name" className="text-gray-700 font-bold mb-3">Nome</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('name')} placeholder="Digite o nome" />
                             <ShowErrorMessage error={errors.name?.message} />
                         </div>
 
-                        <div className="flex flex-col w-5/12 ">
+                        <div className="flex flex-col lg:w-5/12 ">
                             <div className="flex flex-col  items-center justify-center">
 
                                 {cover && !showImage ? (<img src={`${process.env.NEXT_PUBLIC_API_URL}/profile/cover/${cover}`} className="w-[90px] h-[90px] rounded-full" alt="" />) : (<></>)}
@@ -157,14 +157,14 @@ function Profile() {
                         </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 flex-col lg:flex-row">
 
-                        <div className="flex flex-col w-7/12">
+                        <div className="flex flex-col lg:w-7/12">
                             <label htmlFor="name" className="text-gray-700 font-bold my-3">E-mail</label>
                             <input type="text" className="border rounded h-12 px-3 focus:outline-none" {...register('email')} placeholder="Digite o email" />
                             <ShowErrorMessage error={errors.email?.message} />
                         </div>
-                        <div className="flex flex-col w-5/12">
+                        <div className="flex flex-col lg:w-5/12">
                             <label htmlFor="password" className="text-gray-700 font-bold my-3">Senha</label>
                             <input type="password" className="border rounded h-12 px-3 focus:outline-none" {...register('password')} placeholder="Digite a senha" />
                             <ShowErrorMessage error={errors.password?.message} />
@@ -172,7 +172,7 @@ function Profile() {
                     </div>
 
                     <div className="flex justify-center">
-                        <button type="submit" className="text-white text-2xl bg-[#613387] font-bold h-16 rounded-lg px-16 justify-center items-center mt-8">Atualizar</button>
+                        <button type="submit" className="text-white text-2xl bg-[#613387] font-bold h-16 rounded-lg px-16 justify-center items-center mt-8 w-full lg:w-min">Atualizar</button>
                     </div>
 
                 </form>

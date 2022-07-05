@@ -1,6 +1,5 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ModalProvider } from '../contexts/ModalContext'
 import Modal from 'react-modal'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
@@ -21,9 +20,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         draggable
         pauseOnHover
       />
-      <ModalProvider>
-        <Component {...pageProps} />
-      </ModalProvider>
+
+      <Component {...pageProps} />
+
     </>
   )
 }
