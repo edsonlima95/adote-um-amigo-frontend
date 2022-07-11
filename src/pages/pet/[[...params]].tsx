@@ -39,6 +39,9 @@ function Create() {
 
     const [showImage, setShowImage] = useState("")
     const [Image, setImage] = useState()
+    //Recebe a imagem do usuario logado caso exista
+    const [cover, setCover] = useState<string | undefined>()
+
     const [categories, setCategories] = useState<Category[]>()
 
     //Validações dos campos
@@ -87,6 +90,7 @@ function Create() {
                 setValue('state', pet.state)
                 setValue('category_id', pet.category_id)
                 setValue('user_id', pet.user_id)
+                setCover(pet.cover)
 
             }).catch((error) => { })
 
@@ -225,13 +229,14 @@ function Create() {
                         </div>
 
                         <div className="flex flex-col lg:w-5/12 ">
-                            <div className="flex items-center justify-center">
+                            <div className="flex flex-col  items-center justify-center">
 
-                                <label htmlFor="cover" className="font-bold mb-3 bg-[#613387] p-5 w-24 rounded text-white flex flex-col items-center">
-                                    <CloudArrowUp size={32} />
-                                    Imagem
-                                </label>
-                                {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full ml-10" />) : (<></>)}
+                                {cover && !showImage ? (<img src={`${process.env.NEXT_PUBLIC_API_URL}/pet/cover/${cover}`} className="w-[90px] h-[90px] rounded-full" alt="" />) : (<></>)}
+
+                                {showImage ? (<img src={showImage} alt="" className="w-[90px] h-[90px] rounded-full" />)
+                                    : (!cover ? <img src="/images/user.jpg" alt="" className="w-[90px] h-[90px] rounded-full" /> : (<></>))}
+                                <label htmlFor="cover" className="mt-5 text-[#613387] font-semibold">Alterar foto</label>
+
                             </div>
                             <Controller
                                 control={control}

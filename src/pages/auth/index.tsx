@@ -8,6 +8,7 @@ import Router from 'next/router';
 import { toast } from "react-toastify";
 import { getCookie, setCookies } from "cookies-next";
 import { GetServerSideProps } from "next";
+import { LockSimpleOpen, SignIn, UserCirclePlus } from "phosphor-react";
 
 type FormDataProps = {
     name?: string,
@@ -19,7 +20,7 @@ function Auth() {
 
     const [isLogin, setIsLogin] = useState(true)
 
-    
+
 
     //Validações dos campos
     const schema = yup.object({
@@ -84,14 +85,19 @@ function Auth() {
 
     return (
 
-        <div className="flex">
-            <div className="w-4/12 min-h-screen bg-[#613387] flex flex-col items-center justify-center">
+        <div className="flex flex-col lg:flex-row">
+            <div className="w-4/12 min-h-screen hidden bg-[#613387] lg:flex flex-col items-center justify-center">
                 <img src="/images/login2.svg" alt="" className="w-52" />
                 <span className="text-white mt-5 text-sm text-center">Faça login na nossa plataforma ou <br /> cadastre-se, e faça um amiguinho <br /> feliz com um novo lar.</span>
             </div>
-            <div className="flex justify-center items-center w-8/12">
+            <div className="flex flex-col lg:flex-row justify-center items-center min-h-screen lg:w-8/12 p-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="w-full lg:w-5/12 bg-white p-5 shadow rounded-sm">
+                    <div className="flex justify-center items-center mb-8">
 
-                <form onSubmit={handleSubmit(onSubmit)} className="w-5/12 bg-white p-5 shadow rounded-sm">
+                        {isLogin ? <SignIn size={40} color="#613387" /> : <UserCirclePlus size={40} color="#613387" />}
+
+                        <span className="text-[#613387] ml-3 text-3xl font-bold">{isLogin ? 'Fazer login' : 'Cadastre-se'}</span>
+                    </div>
                     {!isLogin ? (
                         <div className="flex flex-col">
                             <label htmlFor="name" className="text-gray-700 font-bold mb-3">Nome</label>
@@ -133,7 +139,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     if (token) {
         return {
-            redirect:{
+            redirect: {
                 destination: "/",
                 permanent: false
             }
